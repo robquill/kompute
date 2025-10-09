@@ -5,6 +5,7 @@
 
 #include "kompute/Image.hpp"
 #include "kompute/Sequence.hpp"
+#include "kompute/Texture.hpp"
 #include "logger/Logger.hpp"
 
 #define KP_DEFAULT_SESSION "DEFAULT"
@@ -49,7 +50,6 @@ class Manager
     Manager(std::shared_ptr<vk::Instance> instance,
             std::shared_ptr<vk::PhysicalDevice> physicalDevice,
             std::shared_ptr<vk::Device> device);
-
 
     /**
      * @brief Make Manager uncopyable
@@ -427,6 +427,307 @@ class Manager
         }
 
         return image;
+    }
+
+    /**
+     * Create a managed texture (image) that will be destroyed by this manager
+     * if it hasn't been destroyed by its reference count going to zero.
+     *
+     * @param data The data to initialize the image with
+     * @param tensorType The type of image to initialize
+     * @returns Shared pointer with initialised image
+     */
+    template<typename T>
+    std::shared_ptr<TextureT<T>> textureT(
+      const std::vector<T>& data,
+      uint32_t width,
+      uint32_t height,
+      uint32_t numChannels,
+      vk::ImageTiling tiling,
+      vk::Filter filter = vk::Filter::eNearest,
+      vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eClampToEdge,
+      Memory::MemoryTypes imageType = Memory::MemoryTypes::eDevice)
+    {
+        KP_LOG_DEBUG("Kompute Manager texture creation triggered");
+
+        std::shared_ptr<TextureT<T>> image{ new kp::TextureT<T>(
+          this->mPhysicalDevice,
+          this->mDevice,
+          data,
+          width,
+          height,
+          numChannels,
+          tiling,
+          imageType,
+          filter,
+          addressMode) };
+
+        if (this->mManageResources) {
+            this->mManagedMemObjects.push_back(image);
+        }
+
+        return image;
+    }
+
+    template<typename T>
+    std::shared_ptr<TextureT<T>> textureT(
+      const std::vector<T>& data,
+      uint32_t width,
+      uint32_t height,
+      uint32_t numChannels,
+      vk::Filter filter = vk::Filter::eNearest,
+      vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eClampToEdge,
+      Memory::MemoryTypes imageType = Memory::MemoryTypes::eDevice)
+    {
+        KP_LOG_DEBUG("Kompute Manager texture creation triggered");
+
+        std::shared_ptr<TextureT<T>> image{ new kp::TextureT<T>(
+          this->mPhysicalDevice,
+          this->mDevice,
+          data,
+          width,
+          height,
+          numChannels,
+          imageType,
+          filter,
+          addressMode) };
+
+        if (this->mManageResources) {
+            this->mManagedMemObjects.push_back(image);
+        }
+
+        return image;
+    }
+
+    template<typename T>
+    std::shared_ptr<TextureT<T>> textureT(
+      uint32_t width,
+      uint32_t height,
+      uint32_t numChannels,
+      vk::ImageTiling tiling,
+      vk::Filter filter = vk::Filter::eNearest,
+      vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eClampToEdge,
+      Memory::MemoryTypes imageType = Memory::MemoryTypes::eDevice)
+    {
+        KP_LOG_DEBUG("Kompute Manager texture creation triggered");
+
+        std::shared_ptr<TextureT<T>> image{ new kp::TextureT<T>(
+          this->mPhysicalDevice,
+          this->mDevice,
+          width,
+          height,
+          numChannels,
+          tiling,
+          imageType,
+          filter,
+          addressMode) };
+
+        if (this->mManageResources) {
+            this->mManagedMemObjects.push_back(image);
+        }
+
+        return image;
+    }
+
+    template<typename T>
+    std::shared_ptr<TextureT<T>> textureT(
+      uint32_t width,
+      uint32_t height,
+      uint32_t numChannels,
+      vk::Filter filter = vk::Filter::eNearest,
+      vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eClampToEdge,
+      Memory::MemoryTypes imageType = Memory::MemoryTypes::eDevice)
+    {
+        KP_LOG_DEBUG("Kompute Manager texture creation triggered");
+
+        std::shared_ptr<TextureT<T>> image{ new kp::TextureT<T>(
+          this->mPhysicalDevice,
+          this->mDevice,
+          width,
+          height,
+          numChannels,
+          imageType,
+          filter,
+          addressMode) };
+
+        if (this->mManageResources) {
+            this->mManagedMemObjects.push_back(image);
+        }
+
+        return image;
+    }
+    std::shared_ptr<TextureT<float>> texture(
+      const std::vector<float>& data,
+      uint32_t width,
+      uint32_t height,
+      uint32_t numChannels,
+      vk::ImageTiling tiling,
+      vk::Filter filter = vk::Filter::eNearest,
+      vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eClampToEdge,
+      Memory::MemoryTypes imageType = Memory::MemoryTypes::eDevice)
+    {
+        return this->textureT<float>(data,
+                                     width,
+                                     height,
+                                     numChannels,
+                                     tiling,
+                                     filter,
+                                     addressMode,
+                                     imageType);
+    }
+
+    std::shared_ptr<TextureT<float>> texture(
+      const std::vector<float>& data,
+      uint32_t width,
+      uint32_t height,
+      uint32_t numChannels,
+      vk::Filter filter = vk::Filter::eNearest,
+      vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eClampToEdge,
+      Memory::MemoryTypes imageType = Memory::MemoryTypes::eDevice)
+    {
+        return this->textureT<float>(
+          data, width, height, numChannels, filter, addressMode, imageType);
+    }
+
+    std::shared_ptr<TextureT<float>> texture(
+      uint32_t width,
+      uint32_t height,
+      uint32_t numChannels,
+      vk::ImageTiling tiling,
+      vk::Filter filter = vk::Filter::eNearest,
+      vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eClampToEdge,
+      Memory::MemoryTypes imageType = Memory::MemoryTypes::eDevice)
+    {
+        return this->textureT<float>(
+          width, height, numChannels, tiling, filter, addressMode, imageType);
+    }
+
+    std::shared_ptr<TextureT<float>> texture(
+      uint32_t width,
+      uint32_t height,
+      uint32_t numChannels,
+      vk::Filter filter = vk::Filter::eNearest,
+      vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eClampToEdge,
+      Memory::MemoryTypes imageType = Memory::MemoryTypes::eDevice)
+    {
+        return this->textureT<float>(
+          width, height, numChannels, filter, addressMode, imageType);
+    }
+
+    std::shared_ptr<Texture> texture(
+      void* data,
+      size_t dataSize,
+      uint32_t width,
+      uint32_t height,
+      uint32_t numChannels,
+      const Image::DataTypes& dataType,
+      vk::ImageTiling tiling,
+      vk::Filter filter = vk::Filter::eNearest,
+      vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eClampToEdge,
+      Memory::MemoryTypes imageType = Memory::MemoryTypes::eDevice)
+    {
+        std::shared_ptr<Texture> texture{ new kp::Texture(this->mPhysicalDevice,
+                                                          this->mDevice,
+                                                          data,
+                                                          dataSize,
+                                                          width,
+                                                          height,
+                                                          numChannels,
+                                                          dataType,
+                                                          tiling,
+                                                          imageType,
+                                                          filter,
+                                                          addressMode) };
+
+        if (this->mManageResources) {
+            this->mManagedMemObjects.push_back(texture);
+        }
+
+        return texture;
+    }
+
+    std::shared_ptr<Texture> texture(
+      void* data,
+      size_t dataSize,
+      uint32_t width,
+      uint32_t height,
+      uint32_t numChannels,
+      const Memory::DataTypes& dataType,
+      vk::Filter filter = vk::Filter::eNearest,
+      vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eClampToEdge,
+      Memory::MemoryTypes imageType = Memory::MemoryTypes::eDevice)
+    {
+        std::shared_ptr<Texture> texture{ new kp::Texture(this->mPhysicalDevice,
+                                                          this->mDevice,
+                                                          data,
+                                                          dataSize,
+                                                          width,
+                                                          height,
+                                                          numChannels,
+                                                          dataType,
+                                                          imageType,
+                                                          filter,
+                                                          addressMode) };
+
+        if (this->mManageResources) {
+            this->mManagedMemObjects.push_back(texture);
+        }
+
+        return texture;
+    }
+
+    std::shared_ptr<Texture> texture(
+      uint32_t width,
+      uint32_t height,
+      uint32_t numChannels,
+      const Memory::DataTypes& dataType,
+      vk::ImageTiling tiling,
+      vk::Filter filter = vk::Filter::eNearest,
+      vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eClampToEdge,
+      Memory::MemoryTypes imageType = Memory::MemoryTypes::eDevice)
+    {
+        std::shared_ptr<Texture> texture{ new kp::Texture(this->mPhysicalDevice,
+                                                          this->mDevice,
+                                                          width,
+                                                          height,
+                                                          numChannels,
+                                                          dataType,
+                                                          tiling,
+                                                          imageType,
+                                                          filter,
+                                                          addressMode) };
+
+        if (this->mManageResources) {
+            this->mManagedMemObjects.push_back(texture);
+        }
+
+        return texture;
+    }
+
+    std::shared_ptr<Texture> texture(
+      uint32_t width,
+      uint32_t height,
+      uint32_t numChannels,
+      const Memory::DataTypes& dataType,
+      vk::Filter filter = vk::Filter::eNearest,
+      vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eClampToEdge,
+      Memory::MemoryTypes imageType = Memory::MemoryTypes::eDevice)
+    {
+        std::shared_ptr<Texture> texture{ new kp::Texture(this->mPhysicalDevice,
+                                                          this->mDevice,
+                                                          width,
+                                                          height,
+                                                          numChannels,
+                                                          dataType,
+                                                          imageType,
+                                                          filter,
+                                                          addressMode) };
+
+        if (this->mManageResources) {
+            this->mManagedMemObjects.push_back(texture);
+        }
+
+        return texture;
     }
 
     /**

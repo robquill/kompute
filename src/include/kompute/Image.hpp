@@ -319,10 +319,12 @@ class Image : public Memory
     vk::ImageLayout mStagingImageLayout = vk::ImageLayout::eUndefined;
     std::shared_ptr<vk::ImageView> mImageView = nullptr;
     vk::ImageTiling mTiling = vk::ImageTiling::eOptimal;
+    std::shared_ptr<vk::Image> mPrimaryImage;
+
+    vk::Format getFormat();
 
   private:
     // -------------- OPTIONALLY OWNED RESOURCES
-    std::shared_ptr<vk::Image> mPrimaryImage;
     bool mFreePrimaryImage = false;
     std::shared_ptr<vk::Image> mStagingImage;
     bool mFreeStagingImage = false;
@@ -377,8 +379,6 @@ class Image : public Memory
     // Private util functions
     vk::ImageUsageFlags getPrimaryImageUsageFlags();
     vk::ImageUsageFlags getStagingImageUsageFlags();
-
-    vk::Format getFormat();
 
     vk::DescriptorImageInfo constructDescriptorImageInfo();
 

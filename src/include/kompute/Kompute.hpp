@@ -3,6 +3,7 @@
 #include "Algorithm.hpp"
 #include "Core.hpp"
 #include "Image.hpp"
+#include "Texture.hpp"
 #include "Manager.hpp"
 #include "Sequence.hpp"
 #include "Tensor.hpp"

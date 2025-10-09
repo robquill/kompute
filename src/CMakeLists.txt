@@ -19,6 +19,7 @@ add_library(kompute Algorithm.cpp
     Tensor.cpp
     Core.cpp
     Image.cpp
+    Texture.cpp
     Memory.cpp)
 
 add_library(kompute::kompute ALIAS kompute)
