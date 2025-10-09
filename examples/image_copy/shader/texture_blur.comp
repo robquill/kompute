@@ -1,0 +1,20 @@
+#version 450
+
+layout(local_size_x = 1, local_size_y = 1) in;
+
+// Input sampled image (RGBA32F)
+layout(binding = 0) uniform sampler2D imgIn;
+// Output image (RGBA32F)
+layout(binding = 1, rgba32f) uniform writeonly image2D imgOut;
+
+void main() {
+    ivec2 outCoord = ivec2(gl_GlobalInvocationID.xy);
+    ivec2 outSize = imageSize(imgOut);
+
+    // Normalized coordinates for texture()
+    vec2 uv = (vec2(outCoord) + 0.5) / vec2(outSize);
+
+    // Read with an offset to create a simple blur effect
+    vec4 pixel = texture(imgIn, uv + (vec2(0.5/outSize.x, 0.0f)));
+    imageStore(imgOut, outCoord, pixel);
+}
