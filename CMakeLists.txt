@@ -243,10 +243,6 @@ if(KOMPUTE_OPT_ANDROID_BUILD)
     add_compile_definitions(VK_USE_PLATFORM_ANDROID_KHR=1)
 endif()
 
-if(KOMPUTE_OPT_BUILD_PYTHON)
-    add_compile_definitions(KOMPUTE_BUILD_PYTHON=1)
-endif()
-
 if(KOMPUTE_OPT_DISABLE_VK_DEBUG_LAYERS)
     add_compile_definitions(KOMPUTE_DISABLE_VK_DEBUG_LAYERS=1)
 endif()
