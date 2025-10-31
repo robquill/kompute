@@ -812,6 +812,42 @@ Parameter ``tensorType``:
 Returns:
     Shared pointer with initialised tensor)doc";
 
+static const char *__doc_kp_Manager_texture = R"doc()doc";
+
+static const char *__doc_kp_Manager_texture_2 = R"doc()doc";
+
+static const char *__doc_kp_Manager_texture_3 = R"doc()doc";
+
+static const char *__doc_kp_Manager_texture_4 = R"doc()doc";
+
+static const char *__doc_kp_Manager_texture_5 = R"doc()doc";
+
+static const char *__doc_kp_Manager_texture_6 = R"doc()doc";
+
+static const char *__doc_kp_Manager_texture_7 = R"doc()doc";
+
+static const char *__doc_kp_Manager_texture_8 = R"doc()doc";
+
+static const char *__doc_kp_Manager_textureT =
+R"doc(Create a managed texture (image) that will be destroyed by this
+manager if it hasn't been destroyed by its reference count going to
+zero.
+
+Parameter ``data``:
+    The data to initialize the image with
+
+Parameter ``tensorType``:
+    The type of image to initialize
+
+Returns:
+    Shared pointer with initialised image)doc";
+
+static const char *__doc_kp_Manager_textureT_2 = R"doc()doc";
+
+static const char *__doc_kp_Manager_textureT_3 = R"doc()doc";
+
+static const char *__doc_kp_Manager_textureT_4 = R"doc()doc";
+
 static const char *__doc_kp_Memory = R"doc()doc";
 
 static const char *__doc_kp_Memory_DataTypes = R"doc()doc";
@@ -1893,6 +1929,163 @@ R"doc(Function to reserve memory on the tensor. This does not copy any data,
 it just reserves memory, similarly to std::vector reserve() method.)doc";
 
 static const char *__doc_kp_Tensor_type = R"doc()doc";
+
+static const char *__doc_kp_Texture =
+R"doc(Image data used in GPU operations.
+
+Each image would has a respective Vulkan memory and image, which would
+be used to store their respective data. The images can be used for GPU
+data storage or transfer.)doc";
+
+static const char *__doc_kp_TextureT = R"doc()doc";
+
+static const char *__doc_kp_TextureT_TextureT = R"doc()doc";
+
+static const char *__doc_kp_TextureT_TextureT_2 = R"doc()doc";
+
+static const char *__doc_kp_TextureT_TextureT_3 = R"doc()doc";
+
+static const char *__doc_kp_TextureT_TextureT_4 = R"doc()doc";
+
+static const char *__doc_kp_TextureT_operator_array = R"doc()doc";
+
+static const char *__doc_kp_TextureT_vector = R"doc()doc";
+
+static const char *__doc_kp_Texture_Texture =
+R"doc(Constructor with data provided which would be used to create the
+respective vulkan image and memory.
+
+Parameter ``physicalDevice``:
+    The physical device to use to fetch properties
+
+Parameter ``device``:
+    The device to use to create the image and memory from
+
+Parameter ``data``:
+    Pointer to data that will be used to initialise the image
+
+Parameter ``dataSize``:
+    Size in bytes of the data pointed to by \p data
+
+Parameter ``x``:
+    Width of the image in pixels
+
+Parameter ``y``:
+    Height of the image in pixels
+
+Parameter ``numChannels``:
+    The number of channels in the image
+
+Parameter ``dataType``:
+    Data type for the image which is of type DataTypes
+
+Parameter ``memoryType``:
+    Type for the image which is of type MemoryTypes
+
+Parameter ``tiling``:
+    Tiling mode to use for the image.)doc";
+
+static const char *__doc_kp_Texture_Texture_2 =
+R"doc(Constructor with no data provided.
+
+Parameter ``physicalDevice``:
+    The physical device to use to fetch properties
+
+Parameter ``device``:
+    The device to use to create the image and memory from
+
+Parameter ``x``:
+    Width of the image in pixels
+
+Parameter ``y``:
+    Height of the image in pixels
+
+Parameter ``dataType``:
+    Data type for the image which is of type ImageDataTypes
+
+Parameter ``memoryType``:
+    Type for the image which is of type MemoryTypes
+
+Parameter ``tiling``:
+    Tiling mode to use for the image.)doc";
+
+static const char *__doc_kp_Texture_Texture_3 =
+R"doc(Constructor with data provided which would be used to create the
+respective vulkan image and memory. No tiling has been provided so
+will be inferred from \p memoryType.
+
+Parameter ``physicalDevice``:
+    The physical device to use to fetch properties
+
+Parameter ``device``:
+    The device to use to create the image and memory from
+
+Parameter ``data``:
+    Pointer to data that will be used to initialise the image
+
+Parameter ``dataSize``:
+    Size in bytes of the data pointed to by \p data
+
+Parameter ``x``:
+    Width of the image in pixels
+
+Parameter ``y``:
+    Height of the image in pixels
+
+Parameter ``numChannels``:
+    The number of channels in the image
+
+Parameter ``dataType``:
+    Data type for the image which is of type DataTypes
+
+Parameter ``memoryType``:
+    Type for the image which is of type MemoryTypes)doc";
+
+static const char *__doc_kp_Texture_Texture_4 =
+R"doc(Constructor with no data provided. No tiling has been provided so will
+be inferred from \p memoryType.
+
+Parameter ``physicalDevice``:
+    The physical device to use to fetch properties
+
+Parameter ``device``:
+    The device to use to create the image and memory from
+
+Parameter ``x``:
+    Width of the image in pixels
+
+Parameter ``y``:
+    Height of the image in pixels
+
+Parameter ``dataType``:
+    Data type for the image which is of type ImageDataTypes
+
+Parameter ``memoryType``:
+    Type for the image which is of type MemoryTypes)doc";
+
+static const char *__doc_kp_Texture_Texture_5 = R"doc(Make Texture uncopyable)doc";
+
+static const char *__doc_kp_Texture_Texture_6 = R"doc()doc";
+
+static const char *__doc_kp_Texture_constructDescriptorImageInfo = R"doc()doc";
+
+static const char *__doc_kp_Texture_constructDescriptorSet =
+R"doc(Adds this object to a Vulkan descriptor set at \p binding.
+
+Parameter ``descriptorSet``:
+    The descriptor set to add to.
+
+Parameter ``binding``:
+    The binding number to use.
+
+Returns:
+    Add this object to a descriptor set at \p binding.)doc";
+
+static const char *__doc_kp_Texture_mSampler = R"doc()doc";
+
+static const char *__doc_kp_Texture_operator_assign = R"doc()doc";
+
+static const char *__doc_kp_Texture_operator_assign_2 = R"doc()doc";
 
 static const char *__doc_kp_dataType = R"doc()doc";
 

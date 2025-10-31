@@ -111,29 +111,47 @@ PYBIND11_MODULE(kp, m)
              DOC(kp, Memory, MemoryTypes, eDeviceAndHost))
       .export_values();
 
-    auto accessFlagBits = py::enum_<vk::AccessFlagBits>(m, "AccessFlagBits", py::arithmetic())
-      .value(
-        "eShaderRead", vk::AccessFlagBits::eShaderRead, "Shader read access")
-      .value(
-        "eShaderWrite", vk::AccessFlagBits::eShaderWrite, "Shader write access")
+    auto accessFlagBits =
+      py::enum_<vk::AccessFlagBits>(m, "AccessFlagBits", py::arithmetic())
+        .value(
+          "eShaderRead", vk::AccessFlagBits::eShaderRead, "Shader read access")
+        .value("eShaderWrite",
+               vk::AccessFlagBits::eShaderWrite,
+               "Shader write access")
+        .export_values();
+
+    accessFlagBits.def(
+      "__or__", [](vk::AccessFlagBits a, vk::AccessFlagBits b) {
+          return static_cast<vk::AccessFlagBits>(static_cast<VkAccessFlags>(a) |
+                                                 static_cast<VkAccessFlags>(b));
+      });
+
+    auto pipelineStageFlagBits =
+      py::enum_<vk::PipelineStageFlagBits>(
+        m, "PipelineStageFlagBits", py::arithmetic())
+        .value("eComputeShader",
+               vk::PipelineStageFlagBits::eComputeShader,
+               "Compute shader stage")
+        .export_values();
+
+    pipelineStageFlagBits.def(
+      "__or__", [](vk::PipelineStageFlagBits a, vk::PipelineStageFlagBits b) {
+          return static_cast<vk::PipelineStageFlagBits>(
+            static_cast<VkPipelineStageFlags>(a) |
+            static_cast<VkPipelineStageFlags>(b));
+      });
+
+    py::enum_<vk::Filter>(m, "Filter")
+      .value("eNearest", vk::Filter::eNearest)
+      .value("eLinear", vk::Filter::eLinear)
       .export_values();
 
-    accessFlagBits.def("__or__", [](vk::AccessFlagBits a, vk::AccessFlagBits b) {
-        return static_cast<vk::AccessFlagBits>(
-            static_cast<VkAccessFlags>(a) | static_cast<VkAccessFlags>(b));
-    });
-
-    auto pipelineStageFlagBits = py::enum_<vk::PipelineStageFlagBits>(
-      m, "PipelineStageFlagBits", py::arithmetic())
-      .value("eComputeShader",
-             vk::PipelineStageFlagBits::eComputeShader,
-             "Compute shader stage")
+    py::enum_<vk::SamplerAddressMode>(m, "SamplerAddressMode")
+      .value("eRepeat", vk::SamplerAddressMode::eRepeat)
+      .value("eMirroredRepeat", vk::SamplerAddressMode::eMirroredRepeat)
+      .value("eClampToEdge", vk::SamplerAddressMode::eClampToEdge)
+      .value("eClampToBorder", vk::SamplerAddressMode::eClampToBorder)
       .export_values();
-
-    pipelineStageFlagBits.def("__or__", [](vk::PipelineStageFlagBits a, vk::PipelineStageFlagBits b) {
-        return static_cast<vk::PipelineStageFlagBits>(
-            static_cast<VkPipelineStageFlags>(a) | static_cast<VkPipelineStageFlags>(b));
-    });
 
     py::class_<kp::OpBase, std::shared_ptr<kp::OpBase>>(
       m, "OpBase", DOC(kp, OpBase));
@@ -174,26 +192,28 @@ PYBIND11_MODULE(kp, m)
            DOC(kp, OpMult, OpMult));
 
     py::class_<kp::OpMemoryBarrier,
-           kp::OpBase,
-           std::shared_ptr<kp::OpMemoryBarrier>>(
+               kp::OpBase,
+               std::shared_ptr<kp::OpMemoryBarrier>>(
       m, "OpMemoryBarrier", DOC(kp, OpMemoryBarrier))
-      .def(py::init([](const std::vector<std::shared_ptr<kp::Memory>>& tensors,
-                       vk::AccessFlagBits srcAccessMask,
-                       vk::AccessFlagBits dstAccessMask,
-                       vk::PipelineStageFlagBits srcStageMask,
-                       vk::PipelineStageFlagBits dstStageMask) {
-            return new kp::OpMemoryBarrier(tensors,
-                                          vk::AccessFlags(srcAccessMask),
-                                          vk::AccessFlags(dstAccessMask),
-                                          vk::PipelineStageFlags(srcStageMask),
-                                          vk::PipelineStageFlags(dstStageMask));
-         }),
-         DOC(kp, OpMemoryBarrier, OpMemoryBarrier),
-         py::arg("tensors"),
-         py::arg("src_access_mask"),
-         py::arg("dst_access_mask"),
-         py::arg("src_stage_mask") = vk::PipelineStageFlagBits::eComputeShader,
-         py::arg("dst_stage_mask") = vk::PipelineStageFlagBits::eComputeShader);
+      .def(
+        py::init([](const std::vector<std::shared_ptr<kp::Memory>>& tensors,
+                    vk::AccessFlagBits srcAccessMask,
+                    vk::AccessFlagBits dstAccessMask,
+                    vk::PipelineStageFlagBits srcStageMask,
+                    vk::PipelineStageFlagBits dstStageMask) {
+            return new kp::OpMemoryBarrier(
+              tensors,
+              vk::AccessFlags(srcAccessMask),
+              vk::AccessFlags(dstAccessMask),
+              vk::PipelineStageFlags(srcStageMask),
+              vk::PipelineStageFlags(dstStageMask));
+        }),
+        DOC(kp, OpMemoryBarrier, OpMemoryBarrier),
+        py::arg("tensors"),
+        py::arg("src_access_mask"),
+        py::arg("dst_access_mask"),
+        py::arg("src_stage_mask") = vk::PipelineStageFlagBits::eComputeShader,
+        py::arg("dst_stage_mask") = vk::PipelineStageFlagBits::eComputeShader);
 
     py::class_<kp::Algorithm, std::shared_ptr<kp::Algorithm>>(
       m, "Algorithm", DOC(kp, Algorithm, Algorithm))
@@ -315,6 +335,70 @@ PYBIND11_MODULE(kp, m)
         DOC(kp, Memory, data))
       .def("size", &kp::Image::size, DOC(kp, Memory, size))
       .def("__len__", &kp::Image::size, DOC(kp, Memory, size))
+      .def("memory_type", &kp::Memory::memoryType, DOC(kp, Memory, memoryType))
+      .def("data_type",
+           static_cast<kp::Memory::DataTypes (kp::Memory::*)()>(
+             &kp::Memory::dataType),
+           DOC(kp, Memory, dataType))
+      .def("is_init", &kp::Image::isInit, DOC(kp, Image, isInit))
+      .def("destroy", &kp::Image::destroy, DOC(kp, Image, destroy));
+    py::class_<kp::Texture, std::shared_ptr<kp::Texture>, kp::Image>(
+      m, "Texture", DOC(kp, Texture))
+      .def(
+        "data",
+        [](kp::Texture& self) -> py::array {
+            // Non-owning container exposing the underlying pointer
+            switch (self.dataType()) {
+                case kp::Memory::DataTypes::eFloat:
+                    return py::array_t<float>(
+                      { static_cast<py::ssize_t>(self.size()) }, // shape
+                      { sizeof(float) },                         // strides
+                      self.data<float>(),                        // ptr
+                      py::cast(&self));                          // parent
+                case kp::Memory::DataTypes::eUnsignedInt:
+                    return py::array_t<uint32_t>(
+                      { static_cast<py::ssize_t>(self.size()) }, // shape
+                      { sizeof(uint32_t) },                      // strides
+                      self.data<uint32_t>(),                     // ptr
+                      py::cast(&self));                          // parent
+                case kp::Memory::DataTypes::eInt:
+                    return py::array_t<int32_t>(
+                      { static_cast<py::ssize_t>(self.size()) }, // shape
+                      { sizeof(int32_t) },                       // strides
+                      self.data<int32_t>(),                      // ptr
+                      py::cast(&self));                          // parent
+                case kp::Memory::DataTypes::eUnsignedShort:
+                    return py::array_t<uint16_t>(
+                      { static_cast<py::ssize_t>(self.size()) }, // shape
+                      { sizeof(uint16_t) },                      // strides
+                      self.data<uint16_t>(),                     // ptr
+                      py::cast(&self));                          // parent
+                case kp::Memory::DataTypes::eShort:
+                    return py::array_t<int16_t>(
+                      { static_cast<py::ssize_t>(self.size()) }, // shape
+                      { sizeof(int16_t) },                       // strides
+                      self.data<int16_t>(),                      // ptr
+                      py::cast(&self));                          // parent
+                case kp::Memory::DataTypes::eUnsignedChar:
+                    return py::array_t<uint8_t>(
+                      { static_cast<py::ssize_t>(self.size()) }, // shape
+                      { sizeof(uint8_t) },                       // strides
+                      self.data<uint8_t>(),                      // ptr
+                      py::cast(&self));                          // parent
+                case kp::Memory::DataTypes::eChar:
+                    return py::array_t<int8_t>(
+                      { static_cast<py::ssize_t>(self.size()) }, // shape
+                      { sizeof(int8_t) },                        // strides
+                      self.data<int8_t>(),                       // ptr
+                      py::cast(&self));                          // parent
+                default:
+                    throw std::runtime_error(
+                      "Kompute Python data type not supported");
+            }
+        },
+        DOC(kp, Memory, data))
+      .def("size", &kp::Texture::size, DOC(kp, Memory, size))
+      .def("__len__", &kp::Texture::size, DOC(kp, Memory, size))
       .def("memory_type", &kp::Memory::memoryType, DOC(kp, Memory, memoryType))
       .def("data_type",
            static_cast<kp::Memory::DataTypes (kp::Memory::*)()>(
@@ -564,6 +648,139 @@ PYBIND11_MODULE(kp, m)
         py::arg("width"),
         py::arg("height"),
         py::arg("num_channels"),
+        py::arg("memory_type") = kp::Memory::MemoryTypes::eDevice)
+      .def(
+        "texture",
+        [np](kp::Manager& self,
+             const py::array& data,
+             uint32_t width,
+             uint32_t height,
+             uint32_t num_channels,
+             vk::Filter filter,
+             vk::SamplerAddressMode sampler_address_mode,
+             kp::Memory::MemoryTypes memory_type) {
+            const py::array_t<float>& flatdata = np.attr("ravel")(data);
+            const py::buffer_info info = flatdata.request();
+            KP_LOG_DEBUG("Kompute Python Manager texture() creating texture "
+                         "float with data size {}",
+                         flatdata.size());
+            return self.texture(info.ptr,
+                                flatdata.size(),
+                                width,
+                                height,
+                                num_channels,
+                                kp::Memory::DataTypes::eFloat,
+                                filter,
+                                sampler_address_mode,
+                                memory_type);
+        },
+        DOC(kp, Manager, texture),
+        py::arg("data"),
+        py::arg("width"),
+        py::arg("height"),
+        py::arg("num_channels"),
+        py::arg("filter") = vk::Filter::eNearest,
+        py::arg("sampler_address_mode") = vk::SamplerAddressMode::eRepeat,
+        py::arg("memory_type") = kp::Memory::MemoryTypes::eDevice)
+      .def(
+        "texture_t",
+        [np](kp::Manager& self,
+             const py::array& data,
+             uint32_t width,
+             uint32_t height,
+             uint32_t num_channels,
+             vk::Filter filter,
+             vk::SamplerAddressMode sampler_address_mode,
+             kp::Memory::MemoryTypes memory_type) {
+            // TODO: Suppport strides in numpy format
+            const py::array& flatdata = np.attr("ravel")(data);
+            const py::buffer_info info = flatdata.request();
+            KP_LOG_DEBUG("Kompute Python Manager creating texture_T with data "
+                         "size {} dtype {}",
+                         flatdata.size(),
+                         std::string(py::str(flatdata.dtype())));
+            if (flatdata.dtype().is(py::dtype::of<std::float_t>())) {
+                return self.texture(info.ptr,
+                                    flatdata.size(),
+                                    width,
+                                    height,
+                                    num_channels,
+                                    kp::Memory::DataTypes::eFloat,
+                                    filter,
+                                    sampler_address_mode,
+                                    memory_type);
+            } else if (flatdata.dtype().is(py::dtype::of<std::uint32_t>())) {
+                return self.texture(info.ptr,
+                                    flatdata.size(),
+                                    width,
+                                    height,
+                                    num_channels,
+                                    kp::Memory::DataTypes::eUnsignedInt,
+                                    filter,
+                                    sampler_address_mode,
+                                    memory_type);
+            } else if (flatdata.dtype().is(py::dtype::of<std::int32_t>())) {
+                return self.texture(info.ptr,
+                                    flatdata.size(),
+                                    width,
+                                    height,
+                                    num_channels,
+                                    kp::Memory::DataTypes::eInt,
+                                    filter,
+                                    sampler_address_mode,
+                                    memory_type);
+            } else if (flatdata.dtype().is(py::dtype::of<std::uint16_t>())) {
+                return self.texture(info.ptr,
+                                    flatdata.size(),
+                                    width,
+                                    height,
+                                    num_channels,
+                                    kp::Memory::DataTypes::eUnsignedShort,
+                                    filter,
+                                    sampler_address_mode,
+                                    memory_type);
+            } else if (flatdata.dtype().is(py::dtype::of<std::int16_t>())) {
+                return self.texture(info.ptr,
+                                    flatdata.size(),
+                                    width,
+                                    height,
+                                    num_channels,
+                                    kp::Memory::DataTypes::eShort,
+                                    filter,
+                                    sampler_address_mode,
+                                    memory_type);
+            } else if (flatdata.dtype().is(py::dtype::of<std::uint8_t>())) {
+                return self.texture(info.ptr,
+                                    flatdata.size(),
+                                    width,
+                                    height,
+                                    num_channels,
+                                    kp::Memory::DataTypes::eUnsignedChar,
+                                    filter,
+                                    sampler_address_mode,
+                                    memory_type);
+            } else if (flatdata.dtype().is(py::dtype::of<std::int8_t>())) {
+                return self.texture(info.ptr,
+                                    flatdata.size(),
+                                    width,
+                                    height,
+                                    num_channels,
+                                    kp::Memory::DataTypes::eChar,
+                                    filter,
+                                    sampler_address_mode,
+                                    memory_type);
+            } else {
+                throw std::runtime_error(
+                  "Kompute Python no valid dtype supported");
+            }
+        },
+        DOC(kp, Manager, textureT),
+        py::arg("data"),
+        py::arg("width"),
+        py::arg("height"),
+        py::arg("num_channels"),
+        py::arg("filter") = vk::Filter::eNearest,
+        py::arg("sampler_address_mode") = vk::SamplerAddressMode::eRepeat,
         py::arg("memory_type") = kp::Memory::MemoryTypes::eDevice)
       .def(
         "algorithm",

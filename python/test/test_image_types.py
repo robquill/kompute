@@ -83,7 +83,7 @@ def test_type_int():
 
     assert np.all(image_out.data() == arr_in_a * arr_in_b)
 
-def test_type_unsgined_int():
+def test_type_unsigned_int():
 
     shader = """
         #version 450
@@ -163,7 +163,7 @@ def test_type_short():
 
     assert np.all(image_out.data() == arr_in_a * arr_in_b)
 
-def test_type_unsgined_short():
+def test_type_unsigned_short():
 
     shader = """
         #version 450
@@ -243,7 +243,7 @@ def test_type_char():
 
     assert np.all(image_out.data() == arr_in_a * arr_in_b)
 
-def test_type_unsgined_char():
+def test_type_unsigned_char():
 
     shader = """
         #version 450
