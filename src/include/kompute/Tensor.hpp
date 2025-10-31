@@ -139,10 +139,10 @@ class Tensor : public Memory
      */
     void recordPrimaryMemoryBarrier(
       const vk::CommandBuffer& commandBuffer,
-      vk::AccessFlagBits srcAccessMask,
-      vk::AccessFlagBits dstAccessMask,
-      vk::PipelineStageFlagBits srcStageMask,
-      vk::PipelineStageFlagBits dstStageMask) override;
+      vk::AccessFlags srcAccessMask,
+      vk::AccessFlags dstAccessMask,
+      vk::PipelineStageFlags srcStageMask,
+      vk::PipelineStageFlags dstStageMask) override;
     /**
      * Records the memory barrier into the staging buffer and command
      * buffer which ensures that relevant data transfers are carried out
@@ -156,10 +156,10 @@ class Tensor : public Memory
      */
     void recordStagingMemoryBarrier(
       const vk::CommandBuffer& commandBuffer,
-      vk::AccessFlagBits srcAccessMask,
-      vk::AccessFlagBits dstAccessMask,
-      vk::PipelineStageFlagBits srcStageMask,
-      vk::PipelineStageFlagBits dstStageMask) override;
+      vk::AccessFlags srcAccessMask,
+      vk::AccessFlags dstAccessMask,
+      vk::PipelineStageFlags srcStageMask,
+      vk::PipelineStageFlags dstStageMask) override;
 
     /**
      * Adds this object to a Vulkan descriptor set at \p binding.
@@ -206,10 +206,10 @@ class Tensor : public Memory
                                    vk::BufferImageCopy copyRegion);
     void recordBufferMemoryBarrier(const vk::CommandBuffer& commandBuffer,
                                    const vk::Buffer& buffer,
-                                   vk::AccessFlagBits srcAccessMask,
-                                   vk::AccessFlagBits dstAccessMask,
-                                   vk::PipelineStageFlagBits srcStageMask,
-                                   vk::PipelineStageFlagBits dstStageMask);
+                                   vk::AccessFlags srcAccessMask,
+                                   vk::AccessFlags dstAccessMask,
+                                   vk::PipelineStageFlags srcStageMask,
+                                   vk::PipelineStageFlags dstStageMask);
 
     // Private util functions
     vk::BufferUsageFlags getPrimaryBufferUsageFlags();
@@ -267,7 +267,6 @@ class TensorT : public Tensor
     TensorT(const TensorT&&) = delete;
     TensorT& operator=(const TensorT&) = delete;
     TensorT& operator=(const TensorT&&) = delete;
-
 
     ~TensorT() { KP_LOG_DEBUG("Kompute TensorT destructor"); }
 

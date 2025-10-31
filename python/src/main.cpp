@@ -8,6 +8,7 @@
 
 #include "docstrings.hpp"
 #include "utils.hpp"
+#include "vulkan/vulkan_structs.hpp"
 
 namespace py = pybind11;
 
@@ -110,6 +111,30 @@ PYBIND11_MODULE(kp, m)
              DOC(kp, Memory, MemoryTypes, eDeviceAndHost))
       .export_values();
 
+    auto accessFlagBits = py::enum_<vk::AccessFlagBits>(m, "AccessFlagBits", py::arithmetic())
+      .value(
+        "eShaderRead", vk::AccessFlagBits::eShaderRead, "Shader read access")
+      .value(
+        "eShaderWrite", vk::AccessFlagBits::eShaderWrite, "Shader write access")
+      .export_values();
+
+    accessFlagBits.def("__or__", [](vk::AccessFlagBits a, vk::AccessFlagBits b) {
+        return static_cast<vk::AccessFlagBits>(
+            static_cast<VkAccessFlags>(a) | static_cast<VkAccessFlags>(b));
+    });
+
+    auto pipelineStageFlagBits = py::enum_<vk::PipelineStageFlagBits>(
+      m, "PipelineStageFlagBits", py::arithmetic())
+      .value("eComputeShader",
+             vk::PipelineStageFlagBits::eComputeShader,
+             "Compute shader stage")
+      .export_values();
+
+    pipelineStageFlagBits.def("__or__", [](vk::PipelineStageFlagBits a, vk::PipelineStageFlagBits b) {
+        return static_cast<vk::PipelineStageFlagBits>(
+            static_cast<VkPipelineStageFlags>(a) | static_cast<VkPipelineStageFlags>(b));
+    });
+
     py::class_<kp::OpBase, std::shared_ptr<kp::OpBase>>(
       m, "OpBase", DOC(kp, OpBase));
 
@@ -148,6 +173,28 @@ PYBIND11_MODULE(kp, m)
                     const std::shared_ptr<kp::Algorithm>&>(),
            DOC(kp, OpMult, OpMult));
 
+    py::class_<kp::OpMemoryBarrier,
+           kp::OpBase,
+           std::shared_ptr<kp::OpMemoryBarrier>>(
+      m, "OpMemoryBarrier", DOC(kp, OpMemoryBarrier))
+      .def(py::init([](const std::vector<std::shared_ptr<kp::Memory>>& tensors,
+                       vk::AccessFlagBits srcAccessMask,
+                       vk::AccessFlagBits dstAccessMask,
+                       vk::PipelineStageFlagBits srcStageMask,
+                       vk::PipelineStageFlagBits dstStageMask) {
+            return new kp::OpMemoryBarrier(tensors,
+                                          vk::AccessFlags(srcAccessMask),
+                                          vk::AccessFlags(dstAccessMask),
+                                          vk::PipelineStageFlags(srcStageMask),
+                                          vk::PipelineStageFlags(dstStageMask));
+         }),
+         DOC(kp, OpMemoryBarrier, OpMemoryBarrier),
+         py::arg("tensors"),
+         py::arg("src_access_mask"),
+         py::arg("dst_access_mask"),
+         py::arg("src_stage_mask") = vk::PipelineStageFlagBits::eComputeShader,
+         py::arg("dst_stage_mask") = vk::PipelineStageFlagBits::eComputeShader);
+
     py::class_<kp::Algorithm, std::shared_ptr<kp::Algorithm>>(
       m, "Algorithm", DOC(kp, Algorithm, Algorithm))
       .def("get_mem_objects",
@@ -168,34 +215,34 @@ PYBIND11_MODULE(kp, m)
             switch (self.dataType()) {
                 case kp::Memory::DataTypes::eFloat:
                     return py::array_t<float>(
-                      {static_cast<py::ssize_t>(self.size())}, // shape
-                      {sizeof(float)}, // strides
-                      self.data<float>(), // ptr
-                      py::cast(&self)); // parent
+                      { static_cast<py::ssize_t>(self.size()) }, // shape
+                      { sizeof(float) },                         // strides
+                      self.data<float>(),                        // ptr
+                      py::cast(&self));                          // parent
                 case kp::Memory::DataTypes::eUnsignedInt:
                     return py::array_t<uint32_t>(
-                      {static_cast<py::ssize_t>(self.size())}, // shape
-                      {sizeof(uint32_t)}, // strides
-                      self.data<uint32_t>(), // ptr
-                      py::cast(&self)); // parent
+                      { static_cast<py::ssize_t>(self.size()) }, // shape
+                      { sizeof(uint32_t) },                      // strides
+                      self.data<uint32_t>(),                     // ptr
+                      py::cast(&self));                          // parent
                 case kp::Memory::DataTypes::eInt:
                     return py::array_t<int32_t>(
-                      {static_cast<py::ssize_t>(self.size())}, // shape
-                      {sizeof(int32_t)}, // strides
-                      self.data<int32_t>(), // ptr
-                      py::cast(&self)); // parent
+                      { static_cast<py::ssize_t>(self.size()) }, // shape
+                      { sizeof(int32_t) },                       // strides
+                      self.data<int32_t>(),                      // ptr
+                      py::cast(&self));                          // parent
                 case kp::Memory::DataTypes::eDouble:
                     return py::array_t<double>(
-                      {static_cast<py::ssize_t>(self.size())}, // shape
-                      {sizeof(double)}, // strides
-                      self.data<double>(), // ptr
-                      py::cast(&self)); // parent
+                      { static_cast<py::ssize_t>(self.size()) }, // shape
+                      { sizeof(double) },                        // strides
+                      self.data<double>(),                       // ptr
+                      py::cast(&self));                          // parent
                 case kp::Memory::DataTypes::eBool:
                     return py::array_t<bool>(
-                      {static_cast<py::ssize_t>(self.size())}, // shape
-                      {sizeof(bool)}, // strides
-                      self.data<bool>(), // ptr
-                      py::cast(&self)); // parent
+                      { static_cast<py::ssize_t>(self.size()) }, // shape
+                      { sizeof(bool) },                          // strides
+                      self.data<bool>(),                         // ptr
+                      py::cast(&self));                          // parent
                 default:
                     throw std::runtime_error(
                       "Kompute Python data type not supported");
@@ -220,46 +267,46 @@ PYBIND11_MODULE(kp, m)
             switch (self.dataType()) {
                 case kp::Memory::DataTypes::eFloat:
                     return py::array_t<float>(
-                      {static_cast<py::ssize_t>(self.size())}, // shape
-                      {sizeof(float)}, // strides
-                      self.data<float>(), // ptr
-                      py::cast(&self)); // parent
+                      { static_cast<py::ssize_t>(self.size()) }, // shape
+                      { sizeof(float) },                         // strides
+                      self.data<float>(),                        // ptr
+                      py::cast(&self));                          // parent
                 case kp::Memory::DataTypes::eUnsignedInt:
                     return py::array_t<uint32_t>(
-                      {static_cast<py::ssize_t>(self.size())}, // shape
-                      {sizeof(uint32_t)}, // strides
-                      self.data<uint32_t>(), // ptr
-                      py::cast(&self)); // parent
+                      { static_cast<py::ssize_t>(self.size()) }, // shape
+                      { sizeof(uint32_t) },                      // strides
+                      self.data<uint32_t>(),                     // ptr
+                      py::cast(&self));                          // parent
                 case kp::Memory::DataTypes::eInt:
                     return py::array_t<int32_t>(
-                      {static_cast<py::ssize_t>(self.size())}, // shape
-                      {sizeof(int32_t)}, // strides
-                      self.data<int32_t>(), // ptr
-                      py::cast(&self)); // parent
+                      { static_cast<py::ssize_t>(self.size()) }, // shape
+                      { sizeof(int32_t) },                       // strides
+                      self.data<int32_t>(),                      // ptr
+                      py::cast(&self));                          // parent
                 case kp::Memory::DataTypes::eUnsignedShort:
                     return py::array_t<uint16_t>(
-                      {static_cast<py::ssize_t>(self.size())}, // shape
-                      {sizeof(uint16_t)}, // strides
-                      self.data<uint16_t>(), // ptr
-                      py::cast(&self)); // parent
+                      { static_cast<py::ssize_t>(self.size()) }, // shape
+                      { sizeof(uint16_t) },                      // strides
+                      self.data<uint16_t>(),                     // ptr
+                      py::cast(&self));                          // parent
                 case kp::Memory::DataTypes::eShort:
                     return py::array_t<int16_t>(
-                      {static_cast<py::ssize_t>(self.size())}, // shape
-                      {sizeof(int16_t)}, // strides
-                      self.data<int16_t>(), // ptr
-                      py::cast(&self)); // parent
+                      { static_cast<py::ssize_t>(self.size()) }, // shape
+                      { sizeof(int16_t) },                       // strides
+                      self.data<int16_t>(),                      // ptr
+                      py::cast(&self));                          // parent
                 case kp::Memory::DataTypes::eUnsignedChar:
                     return py::array_t<uint8_t>(
-                      {static_cast<py::ssize_t>(self.size())}, // shape
-                      {sizeof(uint8_t)}, // strides
-                      self.data<uint8_t>(), // ptr
-                      py::cast(&self)); // parent
+                      { static_cast<py::ssize_t>(self.size()) }, // shape
+                      { sizeof(uint8_t) },                       // strides
+                      self.data<uint8_t>(),                      // ptr
+                      py::cast(&self));                          // parent
                 case kp::Memory::DataTypes::eChar:
                     return py::array_t<int8_t>(
-                      {static_cast<py::ssize_t>(self.size())}, // shape
-                      {sizeof(int8_t)}, // strides
-                      self.data<int8_t>(), // ptr
-                      py::cast(&self)); // parent
+                      { static_cast<py::ssize_t>(self.size()) }, // shape
+                      { sizeof(int8_t) },                        // strides
+                      self.data<int8_t>(),                       // ptr
+                      py::cast(&self));                          // parent
                 default:
                     throw std::runtime_error(
                       "Kompute Python data type not supported");
@@ -711,25 +758,31 @@ PYBIND11_MODULE(kp, m)
                                           workgroup,
                                           specconstsvec,
                                           pushconstsvec);
-                } else if (push_consts.dtype().is(py::dtype::of<std::int32_t>())) {
-                    std::vector<int32_t> pushconstsvec((int32_t*)pushInfo.ptr,
-                                           ((int32_t*)pushInfo.ptr) + pushInfo.size);
+                } else if (push_consts.dtype().is(
+                             py::dtype::of<std::int32_t>())) {
+                    std::vector<int32_t> pushconstsvec(
+                      (int32_t*)pushInfo.ptr,
+                      ((int32_t*)pushInfo.ptr) + pushInfo.size);
                     return self.algorithm(tensors,
                                           spirvVec,
                                           workgroup,
                                           specconstsvec,
                                           pushconstsvec);
-                } else if (push_consts.dtype().is(py::dtype::of<std::uint32_t>())) {
-                    std::vector<uint32_t> pushconstsvec((uint32_t*)pushInfo.ptr,
-                                            ((uint32_t*)pushInfo.ptr) + pushInfo.size);
+                } else if (push_consts.dtype().is(
+                             py::dtype::of<std::uint32_t>())) {
+                    std::vector<uint32_t> pushconstsvec(
+                      (uint32_t*)pushInfo.ptr,
+                      ((uint32_t*)pushInfo.ptr) + pushInfo.size);
                     return self.algorithm(tensors,
                                           spirvVec,
                                           workgroup,
                                           specconstsvec,
                                           pushconstsvec);
-                } else if (push_consts.dtype().is(py::dtype::of<std::double_t>())) {
+                } else if (push_consts.dtype().is(
+                             py::dtype::of<std::double_t>())) {
                     std::vector<double> pushconstsvec((double*)pushInfo.ptr,
-                                          ((double*)pushInfo.ptr) + pushInfo.size);
+                                                      ((double*)pushInfo.ptr) +
+                                                        pushInfo.size);
                     return self.algorithm(tensors,
                                           spirvVec,
                                           workgroup,

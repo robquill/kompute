@@ -164,7 +164,6 @@ class Image : public Memory
     {
     }
 
-
     /**
      * @brief Make Image uncopyable
      *
@@ -247,10 +246,10 @@ class Image : public Memory
      */
     void recordPrimaryMemoryBarrier(
       const vk::CommandBuffer& commandBuffer,
-      vk::AccessFlagBits srcAccessMask,
-      vk::AccessFlagBits dstAccessMask,
-      vk::PipelineStageFlagBits srcStageMask,
-      vk::PipelineStageFlagBits dstStageMask) override;
+      vk::AccessFlags srcAccessMask,
+      vk::AccessFlags dstAccessMask,
+      vk::PipelineStageFlags srcStageMask,
+      vk::PipelineStageFlags dstStageMask) override;
     /**
      * Records the image memory barrier into the staging image and command
      * buffer which ensures that relevant data transfers are carried out
@@ -264,10 +263,10 @@ class Image : public Memory
      */
     void recordStagingMemoryBarrier(
       const vk::CommandBuffer& commandBuffer,
-      vk::AccessFlagBits srcAccessMask,
-      vk::AccessFlagBits dstAccessMask,
-      vk::PipelineStageFlagBits srcStageMask,
-      vk::PipelineStageFlagBits dstStageMask) override;
+      vk::AccessFlags srcAccessMask,
+      vk::AccessFlags dstAccessMask,
+      vk::PipelineStageFlags srcStageMask,
+      vk::PipelineStageFlags dstStageMask) override;
 
     /**
      * Records the image memory barrier into the primary image and command
@@ -282,10 +281,10 @@ class Image : public Memory
      * @param dstLayout Image layout for the image after the barrier completes
      */
     void recordPrimaryImageBarrier(const vk::CommandBuffer& commandBuffer,
-                                   vk::AccessFlagBits srcAccessMask,
-                                   vk::AccessFlagBits dstAccessMask,
-                                   vk::PipelineStageFlagBits srcStageMask,
-                                   vk::PipelineStageFlagBits dstStageMask,
+                                   vk::AccessFlags srcAccessMask,
+                                   vk::AccessFlags dstAccessMask,
+                                   vk::PipelineStageFlags srcStageMask,
+                                   vk::PipelineStageFlags dstStageMask,
                                    vk::ImageLayout dstLayout);
 
     /**
@@ -361,18 +360,18 @@ class Image : public Memory
      * @param dstLayout Image layout for the image after the barrier completes
      */
     void recordStagingImageBarrier(const vk::CommandBuffer& commandBuffer,
-                                   vk::AccessFlagBits srcAccessMask,
-                                   vk::AccessFlagBits dstAccessMask,
-                                   vk::PipelineStageFlagBits srcStageMask,
-                                   vk::PipelineStageFlagBits dstStageMask,
+                                   vk::AccessFlags srcAccessMask,
+                                   vk::AccessFlags dstAccessMask,
+                                   vk::PipelineStageFlags srcStageMask,
+                                   vk::PipelineStageFlags dstStageMask,
                                    vk::ImageLayout dstLayout);
 
     void recordImageMemoryBarrier(const vk::CommandBuffer& commandBuffer,
                                   const vk::Image& image,
-                                  vk::AccessFlagBits srcAccessMask,
-                                  vk::AccessFlagBits dstAccessMask,
-                                  vk::PipelineStageFlagBits srcStageMask,
-                                  vk::PipelineStageFlagBits dstStageMask,
+                                  vk::AccessFlags srcAccessMask,
+                                  vk::AccessFlags dstAccessMask,
+                                  vk::PipelineStageFlags srcStageMask,
+                                  vk::PipelineStageFlags dstStageMask,
                                   vk::ImageLayout oldLayout,
                                   vk::ImageLayout newLayout);
 

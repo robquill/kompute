@@ -63,7 +63,6 @@ class Memory
            uint32_t x,
            uint32_t y);
 
-
     /**
      * @brief Make Memory uncopyable
      *
@@ -77,7 +76,7 @@ class Memory
      * Destructor which is in charge of freeing vulkan resources unless they
      * have been provided externally.
      */
-    virtual ~Memory(){};
+    virtual ~Memory() {};
 
     /**
      * Destroys and frees the GPU resources which includes the memory.
@@ -146,10 +145,10 @@ class Memory
      */
     virtual void recordPrimaryMemoryBarrier(
       const vk::CommandBuffer& commandBuffer,
-      vk::AccessFlagBits srcAccessMask,
-      vk::AccessFlagBits dstAccessMask,
-      vk::PipelineStageFlagBits srcStageMask,
-      vk::PipelineStageFlagBits dstStageMask) = 0;
+      vk::AccessFlags srcAccessMask,
+      vk::AccessFlags dstAccessMask,
+      vk::PipelineStageFlags srcStageMask,
+      vk::PipelineStageFlags dstStageMask) = 0;
     /**
      * Records the buffer memory barrier into the staging buffer and command
      * buffer which ensures that relevant data transfers are carried out
@@ -163,10 +162,10 @@ class Memory
      */
     virtual void recordStagingMemoryBarrier(
       const vk::CommandBuffer& commandBuffer,
-      vk::AccessFlagBits srcAccessMask,
-      vk::AccessFlagBits dstAccessMask,
-      vk::PipelineStageFlagBits srcStageMask,
-      vk::PipelineStageFlagBits dstStageMask) = 0;
+      vk::AccessFlags srcAccessMask,
+      vk::AccessFlags dstAccessMask,
+      vk::PipelineStageFlags srcStageMask,
+      vk::PipelineStageFlags dstStageMask) = 0;
 
     /**
      * Records a copy from the memory provided to the current

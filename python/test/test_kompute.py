@@ -57,9 +57,14 @@ def test_end_to_end():
 
     algo = mgr.algorithm(params, compile_source(shader), workgroup, spec_consts, push_consts_a)
 
+    # The shader reads and writes to the same buffer, so we need a memory barrier between dispatches
+    barrier = kp.OpMemoryBarrier([tensor_out_a, tensor_out_b], kp.AccessFlagBits.eShaderRead | kp.AccessFlagBits.eShaderWrite,
+        kp.AccessFlagBits.eShaderRead | kp.AccessFlagBits.eShaderWrite)
+
     (mgr.sequence()
         .record(kp.OpSyncDevice(params))
         .record(kp.OpAlgoDispatch(algo))
+        .record(barrier)
         .record(kp.OpAlgoDispatch(algo, push_consts_b))
         .eval())
 
@@ -193,10 +198,16 @@ def test_pushconsts():
 
     algo = mgr.algorithm([tensor], spirv, (1, 1, 1), [], [0.1, 0.2, 0.3])
 
+    # The shader reads and writes to the same buffer, so we need a memory barrier between dispatches
+    barrier = kp.OpMemoryBarrier([tensor], kp.AccessFlagBits.eShaderRead | kp.AccessFlagBits.eShaderWrite,
+        kp.AccessFlagBits.eShaderRead | kp.AccessFlagBits.eShaderWrite)
+
     (mgr.sequence()
         .record(kp.OpSyncDevice([tensor]))
         .record(kp.OpAlgoDispatch(algo))
+        .record(barrier)
         .record(kp.OpAlgoDispatch(algo, [0.3, 0.2, 0.1]))
+        .record(barrier)
         .record(kp.OpAlgoDispatch(algo, [0.3, 0.2, 0.1]))
         .record(kp.OpSyncLocal([tensor]))
         .eval())
@@ -231,10 +242,16 @@ def test_pushconsts_int():
 
     algo = mgr.algorithm([tensor], spirv, (1, 1, 1), spec_consts, push_consts)
 
+    # The shader reads and writes to the same buffer, so we need a memory barrier between dispatches
+    barrier = kp.OpMemoryBarrier([tensor], kp.AccessFlagBits.eShaderRead | kp.AccessFlagBits.eShaderWrite,
+        kp.AccessFlagBits.eShaderRead | kp.AccessFlagBits.eShaderWrite)
+
     (mgr.sequence()
         .record(kp.OpSyncDevice([tensor]))
         .record(kp.OpAlgoDispatch(algo))
+        .record(barrier)
         .record(kp.OpAlgoDispatch(algo, np.array([-1, -1, -1], dtype=np.int32)))
+        .record(barrier)
         .record(kp.OpAlgoDispatch(algo, np.array([-1, -1, -1], dtype=np.int32)))
         .record(kp.OpSyncLocal([tensor]))
         .eval())

@@ -256,10 +256,10 @@ Image::recordCopyImageFromTensor(const vk::CommandBuffer& commandBuffer,
 
 void
 Image::recordPrimaryMemoryBarrier(const vk::CommandBuffer& commandBuffer,
-                                  vk::AccessFlagBits srcAccessMask,
-                                  vk::AccessFlagBits dstAccessMask,
-                                  vk::PipelineStageFlagBits srcStageMask,
-                                  vk::PipelineStageFlagBits dstStageMask)
+                                  vk::AccessFlags srcAccessMask,
+                                  vk::AccessFlags dstAccessMask,
+                                  vk::PipelineStageFlags srcStageMask,
+                                  vk::PipelineStageFlags dstStageMask)
 {
     vk::ImageLayout dstImageLayout;
 
@@ -282,10 +282,10 @@ Image::recordPrimaryMemoryBarrier(const vk::CommandBuffer& commandBuffer,
 
 void
 Image::recordStagingMemoryBarrier(const vk::CommandBuffer& commandBuffer,
-                                  vk::AccessFlagBits srcAccessMask,
-                                  vk::AccessFlagBits dstAccessMask,
-                                  vk::PipelineStageFlagBits srcStageMask,
-                                  vk::PipelineStageFlagBits dstStageMask)
+                                  vk::AccessFlags srcAccessMask,
+                                  vk::AccessFlags dstAccessMask,
+                                  vk::PipelineStageFlags srcStageMask,
+                                  vk::PipelineStageFlags dstStageMask)
 {
     vk::ImageLayout dstImageLayout;
 
@@ -308,10 +308,10 @@ Image::recordStagingMemoryBarrier(const vk::CommandBuffer& commandBuffer,
 
 void
 Image::recordPrimaryImageBarrier(const vk::CommandBuffer& commandBuffer,
-                                 vk::AccessFlagBits srcAccessMask,
-                                 vk::AccessFlagBits dstAccessMask,
-                                 vk::PipelineStageFlagBits srcStageMask,
-                                 vk::PipelineStageFlagBits dstStageMask,
+                                 vk::AccessFlags srcAccessMask,
+                                 vk::AccessFlags dstAccessMask,
+                                 vk::PipelineStageFlags srcStageMask,
+                                 vk::PipelineStageFlags dstStageMask,
                                  vk::ImageLayout dstLayout)
 {
     KP_LOG_DEBUG("Kompute Image recording PRIMARY image memory barrier");
@@ -330,10 +330,10 @@ Image::recordPrimaryImageBarrier(const vk::CommandBuffer& commandBuffer,
 
 void
 Image::recordStagingImageBarrier(const vk::CommandBuffer& commandBuffer,
-                                 vk::AccessFlagBits srcAccessMask,
-                                 vk::AccessFlagBits dstAccessMask,
-                                 vk::PipelineStageFlagBits srcStageMask,
-                                 vk::PipelineStageFlagBits dstStageMask,
+                                 vk::AccessFlags srcAccessMask,
+                                 vk::AccessFlags dstAccessMask,
+                                 vk::PipelineStageFlags srcStageMask,
+                                 vk::PipelineStageFlags dstStageMask,
                                  vk::ImageLayout dstLayout)
 {
     KP_LOG_DEBUG("Kompute Image recording STAGING image memory barrier");
@@ -353,10 +353,10 @@ Image::recordStagingImageBarrier(const vk::CommandBuffer& commandBuffer,
 void
 Image::recordImageMemoryBarrier(const vk::CommandBuffer& commandBuffer,
                                 const vk::Image& image,
-                                vk::AccessFlagBits srcAccessMask,
-                                vk::AccessFlagBits dstAccessMask,
-                                vk::PipelineStageFlagBits srcStageMask,
-                                vk::PipelineStageFlagBits dstStageMask,
+                                vk::AccessFlags srcAccessMask,
+                                vk::AccessFlags dstAccessMask,
+                                vk::PipelineStageFlags srcStageMask,
+                                vk::PipelineStageFlags dstStageMask,
                                 vk::ImageLayout srcLayout,
                                 vk::ImageLayout dstLayout)
 {

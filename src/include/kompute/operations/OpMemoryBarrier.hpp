@@ -35,10 +35,10 @@ class OpMemoryBarrier : public OpBase
      * mem objects
      */
     OpMemoryBarrier(const std::vector<std::shared_ptr<Memory>>& memObjects,
-                    const vk::AccessFlagBits& srcAccessMask,
-                    const vk::AccessFlagBits& dstAccessMask,
-                    const vk::PipelineStageFlagBits& srcStageMask,
-                    const vk::PipelineStageFlagBits& dstStageMask,
+                    const vk::AccessFlags& srcAccessMask,
+                    const vk::AccessFlags& dstAccessMask,
+                    const vk::PipelineStageFlags& srcStageMask,
+                    const vk::PipelineStageFlags& dstStageMask,
                     bool barrierOnPrimary = true) noexcept;
 
     /**
@@ -79,10 +79,10 @@ class OpMemoryBarrier : public OpBase
     virtual void postEval(const vk::CommandBuffer& commandBuffer) override;
 
   private:
-    const vk::AccessFlagBits mSrcAccessMask;
-    const vk::AccessFlagBits mDstAccessMask;
-    const vk::PipelineStageFlagBits mSrcStageMask;
-    const vk::PipelineStageFlagBits mDstStageMask;
+    const vk::AccessFlags mSrcAccessMask;
+    const vk::AccessFlags mDstAccessMask;
+    const vk::PipelineStageFlags mSrcStageMask;
+    const vk::PipelineStageFlags mDstStageMask;
     const bool mBarrierOnPrimary;
     const std::vector<std::shared_ptr<Memory>> mMemObjects;
 };

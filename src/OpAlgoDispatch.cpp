@@ -31,7 +31,7 @@ OpAlgoDispatch::record(const vk::CommandBuffer& commandBuffer)
             image->recordPrimaryImageBarrier(
               commandBuffer,
               vk::AccessFlagBits::eTransferWrite,
-              vk::AccessFlagBits::eShaderRead,
+              vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite,
               vk::PipelineStageFlagBits::eTransfer,
               vk::PipelineStageFlagBits::eComputeShader,
               vk::ImageLayout::eGeneral);
@@ -39,7 +39,7 @@ OpAlgoDispatch::record(const vk::CommandBuffer& commandBuffer)
             mem->recordPrimaryMemoryBarrier(
               commandBuffer,
               vk::AccessFlagBits::eTransferWrite,
-              vk::AccessFlagBits::eShaderRead,
+              vk::AccessFlagBits::eShaderRead | vk::AccessFlagBits::eShaderWrite,
               vk::PipelineStageFlagBits::eTransfer,
               vk::PipelineStageFlagBits::eComputeShader);
         }

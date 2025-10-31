@@ -6,10 +6,10 @@ namespace kp {
 
 OpMemoryBarrier::OpMemoryBarrier(
   const std::vector<std::shared_ptr<Memory>>& memObjects,
-  const vk::AccessFlagBits& srcAccessMask,
-  const vk::AccessFlagBits& dstAccessMask,
-  const vk::PipelineStageFlagBits& srcStageMask,
-  const vk::PipelineStageFlagBits& dstStageMask,
+  const vk::AccessFlags& srcAccessMask,
+  const vk::AccessFlags& dstAccessMask,
+  const vk::PipelineStageFlags& srcStageMask,
+  const vk::PipelineStageFlags& dstStageMask,
   bool barrierOnPrimary) noexcept
   : mSrcAccessMask(srcAccessMask)
   , mDstAccessMask(dstAccessMask)
