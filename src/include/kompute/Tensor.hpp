@@ -9,8 +9,9 @@
 
 namespace kp {
 
-// Forward-declare the Image class
-class Image;
+// Forward-declare the ImageBase class
+class ImageBase;
+
 /**
  * Structured data used in GPU operations.
  *
@@ -104,7 +105,7 @@ class Tensor : public Memory
      * @param copyFromImage Image to copy the data from
      */
     void recordCopyFrom(const vk::CommandBuffer& commandBuffer,
-                        std::shared_ptr<Image> copyFromImage) override;
+                        std::shared_ptr<ImageBase> copyFromImage) override;
 
     /**
      * Records a copy from the internal staging memory to the device memory

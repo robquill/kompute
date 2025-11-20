@@ -18,6 +18,7 @@ add_library(kompute Algorithm.cpp
     Sequence.cpp
     Tensor.cpp
     Core.cpp
+    ImageBase.cpp
     Image.cpp
     Texture.cpp
     Memory.cpp)

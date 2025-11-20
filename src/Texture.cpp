@@ -53,6 +53,29 @@ Texture::constructDescriptorSet(vk::DescriptorSet descriptorSet, uint32_t bindin
                                   nullptr); // Descriptor buffer info
 }
 
+vk::ImageUsageFlags
+Texture::getPrimaryImageUsageFlags()
+{
+    switch (this->mMemoryType) {
+        case MemoryTypes::eDevice:
+        case MemoryTypes::eHost:
+        case MemoryTypes::eDeviceAndHost:
+            return vk::ImageUsageFlagBits::eSampled |
+                   vk::ImageUsageFlagBits::eTransferSrc |
+                   vk::ImageUsageFlagBits::eTransferDst;
+            break;
+        case MemoryTypes::eStorage:
+            return vk::ImageUsageFlagBits::eSampled |
+                   // You can still copy images to/from storage memory
+                   // so set the transfer usage flags here.
+                   vk::ImageUsageFlagBits::eTransferSrc |
+                   vk::ImageUsageFlagBits::eTransferDst;
+            break;
+        default:
+            throw std::runtime_error("Kompute Image invalid image type");
+    }
+}
+
 Texture::~Texture()
 {
     KP_LOG_DEBUG("Kompute Texture destructor started. Type: {}",
@@ -64,6 +87,28 @@ Texture::~Texture()
     }
 
     KP_LOG_DEBUG("Kompute Texture destructor success");
+}
+
+void
+Texture::destroy()
+{
+    KP_LOG_DEBUG("Kompute Texture started destroy()");
+
+    if (!this->mDevice) {
+        KP_LOG_WARN(
+          "Kompute Texture destructor reached with null Device pointer");
+        return;
+    }
+
+    if (this->mSampler) {
+        KP_LOG_DEBUG("Kompute Texture destroying sampler");
+        this->mDevice->destroySampler(this->mSampler);
+        this->mSampler = nullptr;
+    }
+
+    ImageBase::destroy();
+
+    KP_LOG_DEBUG("Kompute Texture successful destroy()");
 }
 
 } // End namespace kp

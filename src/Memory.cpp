@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "kompute/Memory.hpp"
-#include "kompute/Image.hpp"
+#include "kompute/ImageBase.hpp"
 #include "kompute/Tensor.hpp"
 #if KOMPUTE_OPT_USE_SPDLOG
 #include <spdlog/fmt/fmt.h>
@@ -280,7 +280,7 @@ Memory::recordCopyFrom(const vk::CommandBuffer& commandBuffer,
                              std::static_pointer_cast<Tensor>(copyFromMemory));
     } else if (copyFromMemory->type() == Memory::Type::eImage) {
         this->recordCopyFrom(commandBuffer,
-                             std::static_pointer_cast<Image>(copyFromMemory));
+                             std::static_pointer_cast<ImageBase>(copyFromMemory));
     } else {
         throw std::runtime_error("Kompute Memory unsupported memory type");
     }

@@ -2,6 +2,7 @@
 #pragma once
 
 #include "kompute/Core.hpp"
+#include "kompute/ImageBase.hpp"
 #include "kompute/Memory.hpp"
 #include "kompute/Tensor.hpp"
 #include "logger/Logger.hpp"
@@ -17,7 +18,7 @@ namespace kp {
  * would be used to store their respective data. The images can be used for GPU
  * data storage or transfer.
  */
-class Image : public Memory
+class Image : public ImageBase
 {
   public:
     /**
@@ -45,13 +46,14 @@ class Image : public Memory
           const DataTypes& dataType,
           vk::ImageTiling tiling,
           const MemoryTypes& memoryType = MemoryTypes::eDevice)
-      : Memory(physicalDevice, device, dataType, memoryType, x, y)
+      : ImageBase(physicalDevice, device, dataType, memoryType, x, y)
     {
         if (dataType == DataTypes::eCustom) {
             throw std::runtime_error(
               "Custom data types are not supported for Kompute Images");
         }
 
+        this->mDescriptorType = vk::DescriptorType::eStorageImage;
         init(data, dataSize, numChannels, tiling);
     }
 
@@ -111,7 +113,7 @@ class Image : public Memory
           uint32_t numChannels,
           const DataTypes& dataType,
           const MemoryTypes& memoryType = MemoryTypes::eDevice)
-      : Memory(physicalDevice, device, dataType, memoryType, x, y)
+      : ImageBase(physicalDevice, device, dataType, memoryType, x, y)
     {
         vk::ImageTiling tiling;
 
@@ -131,6 +133,7 @@ class Image : public Memory
             throw std::runtime_error("Kompute Image unsupported memory type");
         }
 
+        this->mDescriptorType = vk::DescriptorType::eStorageImage;
         init(data, dataSize, numChannels, tiling);
     }
 
@@ -179,217 +182,13 @@ class Image : public Memory
      */
     virtual ~Image();
 
-    /**
-     * Destroys and frees the GPU resources which include the image and memory.
-     */
-    void destroy() override;
-
-    /**
-     * Check whether image is initialized based on the created gpu resources.
-     *
-     * @returns Boolean stating whether image is initialized
-     */
-    bool isInit() override;
-
-    /**
-     * Records a copy from the memory of the image provided to the current
-     * image. This is intended to pass memory into a processing, to perform
-     * a staging image transfer, or to gather output (between others).
-     *
-     * @param commandBuffer Vulkan Command Buffer to record the commands into
-     * @param copyFromImage Image to copy the data from
-     */
-    void recordCopyFrom(const vk::CommandBuffer& commandBuffer,
-                        std::shared_ptr<Image> copyFromImage) override;
-
-    /**
-     * Records a copy from the memory of the tensor provided to the current
-     * image. This is intended to pass memory into a processing, to perform
-     * a staging image transfer, or to gather output (between others).
-     *
-     * @param commandBuffer Vulkan Command Buffer to record the commands into
-     * @param copyFromTensor Tensor to copy the data from
-     */
-    void recordCopyFrom(const vk::CommandBuffer& commandBuffer,
-                        std::shared_ptr<Tensor> copyFromTensor) override;
-
-    /**
-     * Records a copy from the internal staging memory to the device memory
-     * using an optional barrier to wait for the operation. This function would
-     * only be relevant for kp::images of type eDevice.
-     *
-     * @param commandBuffer Vulkan Command Buffer to record the commands into
-     */
-    void recordCopyFromStagingToDevice(
-      const vk::CommandBuffer& commandBuffer) override;
-
-    /**
-     * Records a copy from the internal device memory to the staging memory
-     * using an optional barrier to wait for the operation. This function would
-     * only be relevant for kp::images of type eDevice.
-     *
-     * @param commandBuffer Vulkan Command Buffer to record the commands into
-     */
-    void recordCopyFromDeviceToStaging(
-      const vk::CommandBuffer& commandBuffer) override;
-
-    /**
-     * Records the image memory barrier into the primary image and command
-     * buffer which ensures that relevant data transfers are carried out
-     * correctly.
-     *
-     * @param commandBuffer Vulkan Command Buffer to record the commands into
-     * @param srcAccessMask Access flags for source access mask
-     * @param dstAccessMask Access flags for destination access mask
-     * @param scrStageMask Pipeline stage flags for source stage mask
-     * @param dstStageMask Pipeline stage flags for destination stage mask
-     */
-    void recordPrimaryMemoryBarrier(
-      const vk::CommandBuffer& commandBuffer,
-      vk::AccessFlags srcAccessMask,
-      vk::AccessFlags dstAccessMask,
-      vk::PipelineStageFlags srcStageMask,
-      vk::PipelineStageFlags dstStageMask) override;
-    /**
-     * Records the image memory barrier into the staging image and command
-     * buffer which ensures that relevant data transfers are carried out
-     * correctly.
-     *
-     * @param commandBuffer Vulkan Command Buffer to record the commands into
-     * @param srcAccessMask Access flags for source access mask
-     * @param dstAccessMask Access flags for destination access mask
-     * @param scrStageMask Pipeline stage flags for source stage mask
-     * @param dstStageMask Pipeline stage flags for destination stage mask
-     */
-    void recordStagingMemoryBarrier(
-      const vk::CommandBuffer& commandBuffer,
-      vk::AccessFlags srcAccessMask,
-      vk::AccessFlags dstAccessMask,
-      vk::PipelineStageFlags srcStageMask,
-      vk::PipelineStageFlags dstStageMask) override;
-
-    /**
-     * Records the image memory barrier into the primary image and command
-     * buffer which ensures that relevant data transfers are carried out
-     * correctly.
-     *
-     * @param commandBuffer Vulkan Command Buffer to record the commands into
-     * @param srcAccessMask Access flags for source access mask
-     * @param dstAccessMask Access flags for destination access mask
-     * @param scrStageMask Pipeline stage flags for source stage mask
-     * @param dstStageMask Pipeline stage flags for destination stage mask
-     * @param dstLayout Image layout for the image after the barrier completes
-     */
-    void recordPrimaryImageBarrier(const vk::CommandBuffer& commandBuffer,
-                                   vk::AccessFlags srcAccessMask,
-                                   vk::AccessFlags dstAccessMask,
-                                   vk::PipelineStageFlags srcStageMask,
-                                   vk::PipelineStageFlags dstStageMask,
-                                   vk::ImageLayout dstLayout);
-
-    /**
-     * Adds this object to a Vulkan descriptor set at \p binding.
-     *
-     * @param descriptorSet The descriptor set to add to.
-     * @param binding The binding number to use.
-     * @return Add this object to a descriptor set at \p binding.
-     */
-    vk::WriteDescriptorSet constructDescriptorSet(
-      vk::DescriptorSet descriptorSet,
-      uint32_t binding) override;
-
-    std::shared_ptr<vk::Image> getPrimaryImage();
-    vk::ImageLayout getPrimaryImageLayout();
-
-    /***
-     * Retreive the number of channels in the image
-     *
-     * @return Number of channels in the image
-     */
-    uint32_t getNumChannels();
-
     Type type() override { return Type::eImage; }
 
   protected:
-    // -------------- ALWAYS OWNED RESOURCES
-    uint32_t mNumChannels;
-    vk::DescriptorImageInfo mDescriptorImageInfo;
-    vk::ImageLayout mPrimaryImageLayout = vk::ImageLayout::eUndefined;
-    vk::ImageLayout mStagingImageLayout = vk::ImageLayout::eUndefined;
-    std::shared_ptr<vk::ImageView> mImageView = nullptr;
-    vk::ImageTiling mTiling = vk::ImageTiling::eOptimal;
-    std::shared_ptr<vk::Image> mPrimaryImage;
-
-    vk::Format getFormat();
+    vk::ImageUsageFlags getPrimaryImageUsageFlags() override;
 
   private:
-    // -------------- OPTIONALLY OWNED RESOURCES
-    bool mFreePrimaryImage = false;
-    std::shared_ptr<vk::Image> mStagingImage;
-    bool mFreeStagingImage = false;
-
-    void allocateMemoryCreateGPUResources(); // Creates the vulkan image
-    void createImage(std::shared_ptr<vk::Image> image,
-                     vk::ImageUsageFlags imageUsageFlags,
-                     vk::ImageTiling imageTiling);
-    void allocateBindMemory(std::shared_ptr<vk::Image> image,
-                            std::shared_ptr<vk::DeviceMemory> memory,
-                            vk::MemoryPropertyFlags memoryPropertyFlags);
-    void recordCopyImage(const vk::CommandBuffer& commandBuffer,
-                         std::shared_ptr<vk::Image> srcImage,
-                         std::shared_ptr<vk::Image> dstImage,
-                         vk::ImageLayout srcLayout,
-                         vk::ImageLayout dstLayout,
-                         vk::ImageCopy copyRegion);
-    void recordCopyImageFromTensor(const vk::CommandBuffer& commandBuffer,
-                                   std::shared_ptr<vk::Buffer> srcBuffer,
-                                   std::shared_ptr<vk::Image> dstImage,
-                                   vk::ImageLayout dstLayout,
-                                   vk::BufferImageCopy copyRegion);
-
-    /**
-     * Records the image memory barrier into the staging image and command
-     * buffer which ensures that relevant data transfers are carried out
-     * correctly.
-     *
-     * @param commandBuffer Vulkan Command Buffer to record the commands into
-     * @param srcAccessMask Access flags for source access mask
-     * @param dstAccessMask Access flags for destination access mask
-     * @param scrStageMask Pipeline stage flags for source stage mask
-     * @param dstStageMask Pipeline stage flags for destination stage mask
-     * @param dstLayout Image layout for the image after the barrier completes
-     */
-    void recordStagingImageBarrier(const vk::CommandBuffer& commandBuffer,
-                                   vk::AccessFlags srcAccessMask,
-                                   vk::AccessFlags dstAccessMask,
-                                   vk::PipelineStageFlags srcStageMask,
-                                   vk::PipelineStageFlags dstStageMask,
-                                   vk::ImageLayout dstLayout);
-
-    void recordImageMemoryBarrier(const vk::CommandBuffer& commandBuffer,
-                                  const vk::Image& image,
-                                  vk::AccessFlags srcAccessMask,
-                                  vk::AccessFlags dstAccessMask,
-                                  vk::PipelineStageFlags srcStageMask,
-                                  vk::PipelineStageFlags dstStageMask,
-                                  vk::ImageLayout oldLayout,
-                                  vk::ImageLayout newLayout);
-
-    // Private util functions
-    vk::ImageUsageFlags getPrimaryImageUsageFlags();
-    vk::ImageUsageFlags getStagingImageUsageFlags();
-
-    vk::DescriptorImageInfo constructDescriptorImageInfo();
-
-    void init(void* data,
-              size_t dataSize,
-              uint32_t numChannels,
-              vk::ImageTiling tiling);
-    /**
-     * Function to reserve memory on the image. This does not copy any data, it
-     * just reserves memory, similarly to std::vector reserve() method.
-     */
-    void reserve();
+    vk::DescriptorImageInfo constructDescriptorImageInfo() override;
 };
 
 template<typename T>

@@ -278,7 +278,11 @@ PYBIND11_MODULE(kp, m)
            DOC(kp, Memory, dataType))
       .def("is_init", &kp::Tensor::isInit, DOC(kp, Tensor, isInit))
       .def("destroy", &kp::Tensor::destroy, DOC(kp, Tensor, destroy));
-    py::class_<kp::Image, std::shared_ptr<kp::Image>, kp::Memory>(
+    py::class_<kp::ImageBase, std::shared_ptr<kp::ImageBase>, kp::Memory>(
+      m, "ImageBase", DOC(kp, Image))
+      .def("is_init", &kp::ImageBase::isInit, DOC(kp, Image, isInit))
+      .def("destroy", &kp::ImageBase::destroy, DOC(kp, Image, destroy));
+    py::class_<kp::Image, std::shared_ptr<kp::Image>, kp::ImageBase>(
       m, "Image", DOC(kp, Image))
       .def(
         "data",
@@ -342,7 +346,7 @@ PYBIND11_MODULE(kp, m)
            DOC(kp, Memory, dataType))
       .def("is_init", &kp::Image::isInit, DOC(kp, Image, isInit))
       .def("destroy", &kp::Image::destroy, DOC(kp, Image, destroy));
-    py::class_<kp::Texture, std::shared_ptr<kp::Texture>, kp::Image>(
+    py::class_<kp::Texture, std::shared_ptr<kp::Texture>, kp::ImageBase>(
       m, "Texture", DOC(kp, Texture))
       .def(
         "data",
@@ -404,8 +408,8 @@ PYBIND11_MODULE(kp, m)
            static_cast<kp::Memory::DataTypes (kp::Memory::*)()>(
              &kp::Memory::dataType),
            DOC(kp, Memory, dataType))
-      .def("is_init", &kp::Image::isInit, DOC(kp, Image, isInit))
-      .def("destroy", &kp::Image::destroy, DOC(kp, Image, destroy));
+      .def("is_init", &kp::ImageBase::isInit, DOC(kp, Image, isInit))
+      .def("destroy", &kp::ImageBase::destroy, DOC(kp, Image, destroy));
 
     py::class_<kp::Sequence, std::shared_ptr<kp::Sequence>>(m, "Sequence")
       .def(

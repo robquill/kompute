@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 #pragma once
 
-#include "kompute/Image.hpp"
+#include "kompute/ImageBase.hpp"
 #include "kompute/Tensor.hpp"
 #include "logger/Logger.hpp"
 #include "vulkan/vulkan_handles.hpp"
@@ -11,13 +11,13 @@
 namespace kp {
 
 /**
- * Image data used in GPU operations.
+ * Texture data used in GPU operations with sampling capabilities.
  *
- * Each image would has a respective Vulkan memory and image, which
- * would be used to store their respective data. The images can be used for GPU
- * data storage or transfer.
+ * Each texture has a respective Vulkan memory, image, and sampler, which
+ * would be used to store their respective data. The textures can be used for GPU
+ * data storage or transfer with sampling support.
  */
-class Texture : public Image
+class Texture : public ImageBase
 {
   public:
     /**
@@ -47,17 +47,13 @@ class Texture : public Image
               const MemoryTypes& memoryType = MemoryTypes::eDevice,
               vk::Filter filter = vk::Filter::eNearest,
               vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eClampToEdge)
-      : Image(physicalDevice,
-              device,
-              data,
-              dataSize,
-              x,
-              y,
-              numChannels,
-              dataType,
-              tiling,
-              memoryType)
+      : ImageBase(physicalDevice, device, dataType, memoryType, x, y)
     {
+      if (dataType == DataTypes::eCustom) {
+          throw std::runtime_error(
+            "Custom data types are not supported for Kompute Textures");
+      }
+
       vk::SamplerCreateInfo samplerInfo = {};
       samplerInfo.magFilter = filter;
       samplerInfo.minFilter = filter;
@@ -65,6 +61,10 @@ class Texture : public Image
       samplerInfo.addressModeV = addressMode;
       samplerInfo.addressModeW = addressMode;
       device->createSampler(&samplerInfo, nullptr, &mSampler);
+
+      this->mDescriptorType = vk::DescriptorType::eCombinedImageSampler;
+
+      init(data, dataSize, numChannels, tiling);
     }
 
     /**
@@ -129,16 +129,24 @@ class Texture : public Image
               const MemoryTypes& memoryType = MemoryTypes::eDevice,
               vk::Filter filter = vk::Filter::eNearest,
               vk::SamplerAddressMode addressMode = vk::SamplerAddressMode::eClampToEdge)
-      : Image(physicalDevice,
-              device,
-              data,
-              dataSize,
-              x,
-              y,
-              numChannels,
-              dataType,
-              memoryType)
+      : ImageBase(physicalDevice, device, dataType, memoryType, x, y)
     {
+      if (dataType == DataTypes::eCustom) {
+          throw std::runtime_error(
+            "Custom data types are not supported for Kompute Textures");
+      }
+
+      vk::ImageTiling tiling;
+      if (memoryType == MemoryTypes::eHost ||
+          memoryType == MemoryTypes::eDeviceAndHost) {
+          tiling = vk::ImageTiling::eLinear;
+      } else if (memoryType == MemoryTypes::eDevice ||
+                 memoryType == MemoryTypes::eStorage) {
+          tiling = vk::ImageTiling::eOptimal;
+      } else {
+          throw std::runtime_error("Kompute Texture unsupported memory type");
+      }
+
       vk::SamplerCreateInfo samplerInfo = {};
       samplerInfo.magFilter = filter;
       samplerInfo.minFilter = filter;
@@ -146,6 +154,9 @@ class Texture : public Image
       samplerInfo.addressModeV = addressMode;
       samplerInfo.addressModeW = addressMode;
       device->createSampler(&samplerInfo, nullptr, &mSampler);
+
+      this->mDescriptorType = vk::DescriptorType::eCombinedImageSampler;
+      init(data, dataSize, numChannels, tiling);
     }
 
     /**
@@ -191,11 +202,18 @@ class Texture : public Image
     Texture& operator=(const Texture&) = delete;
     Texture& operator=(const Texture&&) = delete;
 
+    vk::ImageUsageFlags getPrimaryImageUsageFlags() override;
+
     /**
      * Destructor which is in charge of freeing vulkan resources unless they
      * have been provided externally.
      */
     virtual ~Texture();
+
+    /**
+     * Destroys and frees the GPU resources which include the texture and memory.
+     */
+    void destroy() override;
 
     /**
      * Adds this object to a Vulkan descriptor set at \p binding.
@@ -209,7 +227,7 @@ class Texture : public Image
       uint32_t binding) override;
 
     private:
-      vk::DescriptorImageInfo constructDescriptorImageInfo();
+      vk::DescriptorImageInfo constructDescriptorImageInfo() override;
 
       vk::Sampler mSampler;
 };

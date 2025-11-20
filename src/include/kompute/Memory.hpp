@@ -8,9 +8,9 @@
 
 namespace kp {
 
-// Forward declare the Tensor and Image classes
+// Forward declare the Tensor and ImageBase classes
 class Tensor;
-class Image;
+class ImageBase;
 
 class Memory
 {
@@ -340,7 +340,7 @@ class Memory
     virtual void recordCopyFrom(const vk::CommandBuffer& commandBuffer,
                                 std::shared_ptr<Tensor> copyFromMemory) = 0;
     virtual void recordCopyFrom(const vk::CommandBuffer& commandBuffer,
-                                std::shared_ptr<Image> copyFromMemory) = 0;
+                                std::shared_ptr<ImageBase> copyFromMemory) = 0;
 };
 
 template<>

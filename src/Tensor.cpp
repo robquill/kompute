@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "kompute/Tensor.hpp"
-#include "kompute/Image.hpp"
+#include "kompute/ImageBase.hpp"
 
 namespace kp {
 
@@ -103,7 +103,7 @@ Tensor::recordCopyFrom(const vk::CommandBuffer& commandBuffer,
 
 void
 Tensor::recordCopyFrom(const vk::CommandBuffer& commandBuffer,
-                       std::shared_ptr<Image> copyFromImage)
+                       std::shared_ptr<ImageBase> copyFromImage)
 {
 
     vk::DeviceSize bufferSize(this->memorySize());
